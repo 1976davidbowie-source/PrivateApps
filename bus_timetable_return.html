@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>通勤バス 帰り 時刻表</title>
+<style>
+  :root {
+    --city: #0ea5e9;
+    --city-light: #e0f2fe;
+    --city-dark: #0369a1;
+    --rinko: #f97316;
+    --rinko-light: #fff7ed;
+    --rinko-dark: #c2410c;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text: #0f172a;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --next-bg: #fefce8;
+    --next-border: #fde047;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Helvetica Neue', 'Hiragino Sans', 'Meiryo', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+  header {
+    background: #0f172a;
+    color: #fff;
+    padding: 16px 20px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  }
+  .header-left h1 { font-size: 17px; font-weight: 700; letter-spacing: 0.5px; }
+  .header-left .sub { font-size: 11px; color: #94a3b8; margin-top: 1px; }
+  #clock { font-size: 28px; font-weight: 300; font-variant-numeric: tabular-nums; color: #e2e8f0; letter-spacing: 2px; }
+  #date-day { font-size: 11px; color: #94a3b8; text-align: right; margin-top: 1px; }
+
+  .legend { display: flex; gap: 8px; padding: 12px 16px 8px; flex-wrap: wrap; }
+  .badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; letter-spacing: 0.3px; }
+  .badge-city { background: var(--city-light); color: var(--city-dark); border: 1px solid #bae6fd; }
+  .badge-rinko { background: var(--rinko-light); color: var(--rinko-dark); border: 1px solid #fed7aa; }
+  .badge-dot { width: 7px; height: 7px; border-radius: 50%; }
+  .dot-city { background: var(--city); }
+  .dot-rinko { background: var(--rinko); }
+
+  #next-section {
+    margin: 4px 12px 0;
+    background: var(--next-bg);
+    border: 1.5px solid var(--next-border);
+    border-radius: 12px;
+    padding: 12px 16px;
+  }
+  .next-label { font-size: 10px; font-weight: 700; color: #a16207; letter-spacing: 1px; margin-bottom: 6px; }
+  #next-buses { display: flex; gap: 10px; flex-wrap: wrap; }
+  .next-card { background: #fff; border-radius: 8px; padding: 8px 14px; border: 1px solid #fde68a; min-width: 140px; }
+  .next-card .nc-time { font-size: 22px; font-weight: 700; letter-spacing: 1px; }
+  .next-card .nc-label { font-size: 10px; color: var(--muted); margin-top: 1px; }
+  .next-card .nc-remain { font-size: 12px; font-weight: 600; margin-top: 3px; }
+  .nc-city .nc-time { color: var(--city-dark); }
+  .nc-city .nc-remain { color: var(--city); }
+  .nc-rinko .nc-time { color: var(--rinko-dark); }
+  .nc-rinko .nc-remain { color: var(--rinko); }
+
+  #list-container { padding: 10px 12px 80px; display: flex; flex-direction: column; gap: 4px; }
+  .hour-group { margin-bottom: 2px; }
+  .hour-label { font-size: 11px; font-weight: 700; color: var(--muted); padding: 6px 4px 2px; letter-spacing: 1px; }
+
+  .bus-row {
+    display: flex; align-items: center;
+    background: var(--card); border-radius: 8px;
+    padding: 9px 14px; border: 1px solid var(--border);
+    gap: 12px; position: relative; overflow: hidden;
+  }
+  .bus-row::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; }
+  .bus-row.city::before { background: var(--city); }
+  .bus-row.rinko::before { background: var(--rinko); }
+  .bus-row.past { opacity: 0.35; }
+  .bus-row.next-bus { background: var(--next-bg); border-color: var(--next-border); box-shadow: 0 2px 8px rgba(234,179,8,0.15); }
+  .bus-row.soon { animation: pulse-bg 1.5s ease-in-out infinite; }
+  @keyframes pulse-bg { 0%, 100% { background: #fff; } 50% { background: #fef9c3; } }
+
+  .row-time { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: 1px; min-width: 52px; }
+  .city .row-time { color: var(--city-dark); }
+  .rinko .row-time { color: var(--rinko-dark); }
+
+  .row-info { flex: 1; }
+  .row-company { font-size: 10px; font-weight: 700; letter-spacing: 0.5px; padding: 2px 7px; border-radius: 10px; display: inline-block; margin-bottom: 2px; }
+  .city .row-company { background: var(--city-light); color: var(--city-dark); }
+  .rinko .row-company { background: var(--rinko-light); color: var(--rinko-dark); }
+  .row-stop { font-size: 11px; color: var(--muted); }
+  .row-dest { font-size: 10px; color: #94a3b8; margin-top: 1px; }
+
+  .row-remain { font-size: 12px; font-weight: 700; text-align: right; min-width: 44px; }
+  .city .row-remain { color: var(--city); }
+  .rinko .row-remain { color: var(--rinko); }
+  .row-remain.past-label { color: #cbd5e1; font-weight: 400; font-size: 11px; }
+  .row-remain.now-label { color: #dc2626; }
+
+  #empty-msg { text-align: center; color: var(--muted); padding: 40px 20px; font-size: 14px; display: none; }
+
+  footer {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: #fff; border-top: 1px solid var(--border);
+    padding: 8px 16px; display: flex; align-items: center; gap: 8px;
+    font-size: 11px; color: var(--muted);
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.06);
+  }
+  footer span { flex: 1; }
+
+  @media (max-width: 400px) {
+    #clock { font-size: 22px; }
+    .row-time { font-size: 19px; }
+  }
+
+  /* デバッグパネル */
+  #debug-panel {
+    display: none;
+    margin: 8px 12px;
+    background: #1e293b;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-family: 'Courier New', monospace;
+  }
+  #debug-toggle {
+    position: fixed; bottom: 44px; right: 12px;
+    background: #475569; color: #fff;
+    border: none; border-radius: 20px;
+    padding: 5px 12px; font-size: 11px;
+    cursor: pointer; z-index: 200;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  }
+  #debug-toggle.active { background: #dc2626; }
+  .dbg-row {
+    font-size: 11px; padding: 2px 0;
+    border-bottom: 1px solid #334155;
+    display: flex; gap: 8px;
+  }
+  .dbg-row:last-child { border-bottom: none; }
+  .dbg-key { color: #94a3b8; min-width: 110px; flex-shrink: 0; }
+  .dbg-val { color: #34d399; word-break: break-all; }
+  .dbg-err { color: #f87171; }
+  .dbg-title {
+    color: #fbbf24; font-size: 10px; font-weight: bold;
+    letter-spacing: 1px; margin-bottom: 4px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>🚌 通勤バス 帰り 時刻表</h1>
+    <div class="sub">西寺尾・東高校エリア → 菊名方面</div>
+  </div>
+  <div>
+    <div id="clock">--:--</div>
+    <div id="date-day">--</div>
+  </div>
+</header>
+
+<div class="legend">
+  <span class="badge badge-city"><span class="badge-dot dot-city"></span>市営 41系統（西寺尾建功寺前）→ 菊名記念病院前</span>
+  <span class="badge badge-rinko"><span class="badge-dot dot-rinko"></span>臨港 鶴01（東高校入口）→ 菊名駅前</span>
+</div>
+
+<div id="next-section">
+  <div class="next-label">🟡 次のバス</div>
+  <div id="next-buses">読み込み中...</div>
+</div>
+
+<button id="debug-toggle" onclick="toggleDebug()">🔍 DEBUG</button>
+<div id="debug-panel">
+  <div class="dbg-title">DEBUG LOG</div>
+  <div id="debug-log"></div>
+</div>
+
+<div id="list-container"></div>
+<div id="empty-msg">本日の残りのバスはありません</div>
+
+<footer>
+  <span>市営2026/03/28改正・臨港2023/12/23実施</span>
+  <span style="text-align:right;color:#94a3b8">祝日は休日ダイヤ</span>
+</footer>
+
+<script>
+// =============================================
+// 市営バス 41系統 西寺尾建功寺前 のりば2
+// 新横浜駅前・川向町折返場・港北車庫前 行
+// → 菊名記念病院前を通過する全便
+// =============================================
+const CITY = {
+  weekday: {
+    6:  [17,36,51],
+    7:  [3,15,24,27,36,42,50,57],
+    8:  [4,10,16,23,29,37,47,53],
+    9:  [2,14,18,34,39,57],
+    10: [12,27,42,53],
+    11: [5,15,22,37,47,57],
+    12: [11,22,34,43,52],
+    13: [2,11,19,35,40,52],
+    14: [2,17,23,34,39,52],
+    15: [0,14,20,33,39,50,57],
+    16: [9,16,32,40,54],
+    17: [1,13,21,34,44,50],
+    18: [8,17,23,34,38,49,54],
+    19: [4,14,20,29,41,52],
+    20: [8,13,19,32,38],
+    21: [2,22,31,48,54],
+    22: [4,13,27,36,46],
+    23: [1,15,28,43],
+  },
+  saturday: {
+    6:  [22,40,56],
+    7:  [11,26,31,42,55],
+    8:  [4,13,33,48,57],
+    9:  [5,23,36,50],
+    10: [2,14,22,34,46,59],
+    11: [13,19,39,59],
+    12: [9,19,42],
+    13: [0,13,19,35,47,53,59],
+    14: [18,23,35,50,58],
+    15: [11,18,40,52,59],
+    16: [19,32,48],
+    17: [1,13,21,33,48],
+    18: [4,19,28,47],
+    19: [5,14,27,45],
+    20: [4,25,34,44],
+    21: [2,8,27,37,47,57],
+    22: [17,32,47],
+    23: [2,24],
+  },
+  holiday: {
+    6:  [22,38,52],
+    7:  [7,20,30,44],
+    8:  [0,22,30,50],
+    9:  [2,14,23,43],
+    10: [3,14,23,43,53],
+    11: [3,20,26,49],
+    12: [3,13,26,47],
+    13: [3,15,23,37,53],
+    14: [1,7,21,35,52],
+    15: [1,15,21,38,53],
+    16: [1,16,21,35,49],
+    17: [1,13,21,31,45,53],
+    18: [1,15,26,36,54],
+    19: [6,14,26,44],
+    20: [4,23,31,47,54],
+    21: [7,18,27,47,57],
+    22: [8,18,32,44,59],
+  }
+};
+
+// =============================================
+// 臨港バス 鶴01 東高校入口 → 菊名駅前
+// =============================================
+const RINKO = {
+  weekday: {
+    5:  [26,40,54],
+    6:  [6,13,20,27,34,41,48,55],
+    7:  [2,9,16,23,30,38,48,58],
+    8:  [8,18,28,38,48,58],
+    9:  [8,18,28,38,48,58],
+    10: [8,18,28,38,48,58],
+    11: [8,18,28,38,48,58],
+    12: [8,18,28,38,48,58],
+    13: [8,18,28,38,48,58],
+    14: [8,18,28,37,45,53],
+    15: [1,9,17,25,33,41,49,57],
+    16: [5,13,19,25,31,37,43,49,55],
+    17: [1,7,13,19,25,31,37,43,49,55],
+    18: [1,7,13,19,25,32,40,48,56],
+    19: [4,12,20,28,42,52],
+    20: [2,12,22,35,48],
+    21: [1,15,30,51],
+    22: [12],
+  },
+  saturday: {
+    5:  [26,46],
+    6:  [3,22,32,42,52],
+    7:  [2,12,22,32,40,50],
+    8:  [0,8,18,28,38,48,58],
+    9:  [8,18,28,38,48,58],
+    10: [8,18,28,38,48,58],
+    11: [8,18,28,38,48,58],
+    12: [8,18,28,38,48,58],
+    13: [8,18,28,38,48,58],
+    14: [8,18,28,38,48,58],
+    15: [8,18,28,38,48,58],
+    16: [8,18,28,38,48,58],
+    17: [8,19,30,41,52],
+    18: [3,14,26,39,54],
+    19: [9,24,39,54],
+    20: [10,30,51],
+    21: [12],
+  },
+  holiday: {
+    5:  [26,46],
+    6:  [3,22,32,42,52],
+    7:  [2,12,22,32,40,50],
+    8:  [0,8,18,28,38,48,58],
+    9:  [8,18,28,38,48,58],
+    10: [8,18,28,38,48,58],
+    11: [8,18,28,38,48,58],
+    12: [8,18,28,38,48,58],
+    13: [8,18,28,38,48,58],
+    14: [8,18,28,38,48,58],
+    15: [8,18,28,38,48,58],
+    16: [8,18,28,38,48,58],
+    17: [8,19,30,41,52],
+    18: [3,14,26,39,54],
+    19: [9,24,39,54],
+    20: [10,30,51],
+    21: [12],
+  }
+};
+
+// =============================================
+// ユーティリティ
+// =============================================
+function getDayType(date) {
+  const dow = date.getDay();
+  const holidays = [
+    '2026-01-01','2026-01-12','2026-02-11','2026-02-23',
+    '2026-03-20','2026-04-29','2026-05-03','2026-05-04',
+    '2026-05-05','2026-05-06','2026-07-20','2026-08-11',
+    '2026-09-21','2026-09-22','2026-09-23','2026-10-12',
+    '2026-11-03','2026-11-23',
+    '2025-01-01','2025-01-13','2025-02-11','2025-02-23',
+    '2025-03-20','2025-04-29','2025-05-03','2025-05-04',
+    '2025-05-05','2025-05-06',
+  ];
+  const y = date.getFullYear(), mo = String(date.getMonth()+1).padStart(2,'0'), d = String(date.getDate()).padStart(2,'0');
+  const ds = y + '-' + mo + '-' + d;
+  if (holidays.includes(ds)) return 'holiday';
+  if (dow === 0) return 'holiday';
+  if (dow === 6) return 'saturday';
+  return 'weekday';
+}
+
+function getAllBuses(date) {
+  const type = getDayType(date);
+  const all = [];
+
+  const cityData = CITY[type] || CITY.weekday;
+  for (const [h, mins] of Object.entries(cityData)) {
+    for (const m of mins) {
+      all.push({ h: parseInt(h), m, company: 'city',
+        label: '市営 41', stop: '西寺尾建功寺前', dest: '菊名記念病院前 経由' });
+    }
+  }
+
+  const rinkoData = RINKO[type] || RINKO.weekday;
+  for (const [h, mins] of Object.entries(rinkoData)) {
+    for (const m of mins) {
+      all.push({ h: parseInt(h), m, company: 'rinko',
+        label: '臨港 鶴01', stop: '東高校入口', dest: '菊名駅前 行' });
+    }
+  }
+
+  all.sort((a, b) => a.h * 60 + a.m - (b.h * 60 + b.m));
+  return all;
+}
+
+function pad(n) { return String(n).padStart(2, '0'); }
+
+const DOW_JA = ['日','月','火','水','木','金','土'];
+const TYPE_JA = { weekday: '平日', saturday: '土曜', holiday: '休日' };
+
+// =============================================
+// レンダリング
+// =============================================
+function render() {
+  try {
+  const now = new Date();
+  dbLog('render()', new Date().toLocaleString('ja-JP'));
+  dbLog('now.getHours()', now.getHours());
+  dbLog('now.getMinutes()', now.getMinutes());
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  const type = getDayType(now);
+
+  document.getElementById('clock').textContent =
+    `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  document.getElementById('date-day').textContent =
+    `${now.getMonth()+1}/${now.getDate()}（${DOW_JA[now.getDay()]}）${TYPE_JA[type]}ダイヤ`;
+
+  const buses = getAllBuses(now);
+  dbLog('総バス数', buses.length);
+  dbLog('市営バス数', buses.filter(b=>b.company==='city').length);
+  dbLog('臨港バス数', buses.filter(b=>b.company==='rinko').length);
+
+  // 次のバス
+  const upcomingCity  = buses.find(b => b.company === 'city'  && b.h * 60 + b.m >= nowMin);
+  const upcomingRinko = buses.find(b => b.company === 'rinko' && b.h * 60 + b.m >= nowMin);
+  const nextBuses = [upcomingCity, upcomingRinko].filter(Boolean)
+    .sort((a, b) => a.h * 60 + a.m - (b.h * 60 + b.m));
+
+  const nextEl = document.getElementById('next-buses');
+  if (nextBuses.length === 0) {
+    nextEl.innerHTML = '<span style="color:#92400e;font-size:13px;">本日の残りのバスはありません</span>';
+  } else {
+    nextEl.innerHTML = nextBuses.map(b => {
+      const diff = b.h * 60 + b.m - nowMin;
+      const cls = b.company === 'city' ? 'nc-city' : 'nc-rinko';
+      const remain = diff === 0 ? '🚌 まもなく' : `あと ${diff}分`;
+      return `<div class="next-card ${cls}">
+        <div class="nc-time">${pad(b.h)}:${pad(b.m)}</div>
+        <div class="nc-label">${b.label}（${b.stop}）</div>
+        <div class="nc-remain">${remain}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // 全リスト
+  const container = document.getElementById('list-container');
+  const emptyMsg = document.getElementById('empty-msg');
+
+  const grouped = {};
+  for (const b of buses) {
+    if (!grouped[b.h]) grouped[b.h] = [];
+    grouped[b.h].push(b);
+  }
+
+  container.innerHTML = '';
+  let hasUpcoming = false;
+
+  for (const [hStr, group] of Object.entries(grouped)) {
+    const h = parseInt(hStr);
+    const hourDiv = document.createElement('div');
+    hourDiv.className = 'hour-group';
+    hourDiv.innerHTML = `<div class="hour-label">${h}時</div>`;
+
+    for (const b of group) {
+      const bMin = b.h * 60 + b.m;
+      const diff = bMin - nowMin;
+      const isPast = diff < 0;
+      const isNext = !hasUpcoming && diff >= 0;
+      const isSoon = diff >= 0 && diff <= 3;
+      if (isNext) hasUpcoming = true;
+
+      const row = document.createElement('div');
+      row.className = `bus-row ${b.company}${isPast ? ' past' : ''}${isNext ? ' next-bus' : ''}${isSoon && !isPast ? ' soon' : ''}`;
+
+      let remainStr = '', remainClass = 'row-remain';
+      if (diff < 0) {
+        remainStr = '発車済'; remainClass += ' past-label';
+      } else if (diff === 0) {
+        remainStr = '🚌 今すぐ'; remainClass += ' now-label';
+      } else if (diff <= 60) {
+        remainStr = `${diff}分後`;
+      } else {
+        const rh = Math.floor(diff/60), rm = diff%60;
+        remainStr = `${rh}h${rm>0?rm+'m':''}`;
+      }
+
+      row.innerHTML = `
+        <div class="row-time">${pad(b.h)}:${pad(b.m)}</div>
+        <div class="row-info">
+          <span class="row-company">${b.label}</span>
+          <div class="row-stop">${b.stop}</div>
+          <div class="row-dest">${b.dest}</div>
+        </div>
+        <div class="${remainClass}">${remainStr}</div>
+      `;
+      hourDiv.appendChild(row);
+    }
+    container.appendChild(hourDiv);
+  }
+
+  if (!hasUpcoming && buses.length > 0) {
+    emptyMsg.style.display = 'block';
+  } else {
+    emptyMsg.style.display = 'none';
+  }
+
+  const nextRow = container.querySelector('.next-bus');
+  if (nextRow) {
+    setTimeout(() => {
+      nextRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 300);
+  }
+}
+
+render();
+setInterval(render, 10000);
+setInterval(() => {
+  const now = new Date();
+  document.getElementById('clock').textContent =
+    `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+}, 1000);
+</script>
+</body>
+</html>
