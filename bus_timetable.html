@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>通勤バス 帰り 時刻表</title>
+<title>通勤バス 時刻表</title>
 <style>
   :root {
     --city: #0ea5e9;
@@ -32,12 +32,53 @@
   header {
     background: #0f172a;
     color: #fff;
-    padding: 16px 20px 14px;
+    padding: 12px 16px 10px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 10px;
     position: sticky; top: 0; z-index: 100;
     box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+  }
+  .header-right {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .header-next {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .hn-card {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    padding: 4px 10px;
+    text-align: right;
+  }
+  .hn-card.hn-city { border-color: rgba(14,165,233,0.5); }
+  .hn-card.hn-rinko { border-color: rgba(249,115,22,0.5); }
+  .hn-time {
+    font-size: 24px; font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 1px; line-height: 1;
+  }
+  .hn-city .hn-time { color: #7dd3fc; }
+  .hn-rinko .hn-time { color: #fdba74; }
+  .hn-remain {
+    font-size: 18px; font-weight: 600; margin-top: 1px;
+  }
+  .hn-city .hn-remain { color: #38bdf8; }
+  .hn-rinko .hn-remain { color: #fb923c; }
+  .hn-label {
+    font-size: 16px; color: #94a3b8; margin-top: 1px;
+  }
+  .hn-empty {
+    font-size: 11px; color: #64748b;
   }
   .header-left h1 {
     font-size: 17px; font-weight: 700; letter-spacing: 0.5px;
@@ -46,12 +87,14 @@
     font-size: 11px; color: #94a3b8; margin-top: 1px; letter-spacing: 0.3px;
   }
   #clock {
-    font-size: 28px; font-weight: 300;
+    font-size: 22px; font-weight: 700;
     font-variant-numeric: tabular-nums;
-    color: #e2e8f0; letter-spacing: 2px;
+    color: #e2e8f0; letter-spacing: 2px; line-height: 1;
   }
   #date-day {
-    font-size: 11px; color: #94a3b8; text-align: right; margin-top: 1px;
+    font-size: 16px; color: #94a3b8; text-align: right;
+    margin-top: 2px; line-height: 1.5;
+    display: flex; flex-direction: column; align-items: flex-end;
   }
 
   /* 凡例バッジ */
@@ -70,38 +113,8 @@
   .dot-city { background: var(--city); }
   .dot-rinko { background: var(--rinko); }
 
-  /* 「次のバス」カード */
-  #next-section {
-    margin: 4px 12px 0;
-    background: var(--next-bg);
-    border: 1.5px solid var(--next-border);
-    border-radius: 12px;
-    padding: 12px 16px;
-  }
-  .next-label {
-    font-size: 10px; font-weight: 700; color: #a16207;
-    letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px;
-  }
-  #next-buses {
-    display: flex; gap: 10px; flex-wrap: wrap;
-  }
-  .next-card {
-    background: #fff; border-radius: 8px; padding: 8px 14px;
-    border: 1px solid #fde68a; min-width: 120px;
-  }
-  .next-card .nc-time {
-    font-size: 22px; font-weight: 700; letter-spacing: 1px;
-  }
-  .next-card .nc-label {
-    font-size: 10px; color: var(--muted); margin-top: 1px;
-  }
-  .next-card .nc-remain {
-    font-size: 12px; font-weight: 600; margin-top: 3px;
-  }
-  .nc-city .nc-time { color: var(--city-dark); }
-  .nc-city .nc-remain { color: var(--city); }
-  .nc-rinko .nc-time { color: var(--rinko-dark); }
-  .nc-rinko .nc-remain { color: var(--rinko); }
+  /* 「次のバス」は旧カード（非表示） */
+  #next-section { display: none; }
 
   /* 時刻リスト */
   #list-container {
@@ -240,9 +253,12 @@
     <h1>🚌 通勤バス 時刻表</h1>
     <div class="sub">菊名エリア → 鶴見方面</div>
   </div>
-  <div>
-    <div id="clock">--:--</div>
-    <div id="date-day">--</div>
+  <div class="header-right">
+    <div class="header-next" id="header-next-buses"><span class="hn-empty">--</span></div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;">
+      <div id="clock">--:--</div>
+      <div id="date-day">--</div>
+    </div>
   </div>
 </header>
 
@@ -505,8 +521,9 @@ function render() {
   // 時計
   document.getElementById('clock').textContent =
     `${pad(now.getHours())}:${pad(now.getMinutes())}`;
-  document.getElementById('date-day').textContent =
-    `${now.getMonth()+1}/${now.getDate()}（${DOW_JA[now.getDay()]}）${TYPE_JA[type]}ダイヤ`;
+  document.getElementById('date-day').innerHTML =
+    `<span>${now.getMonth()+1}/${now.getDate()}（${DOW_JA[now.getDay()]}）</span>`+
+    `<span>${TYPE_JA[type]}ダイヤ</span>`;
 
   const buses = getAllBuses(now);
   dbLog('総バス数', buses.length);
@@ -517,23 +534,22 @@ function render() {
   const upcomingCity = buses.find(b => b.company === 'city' && b.h * 60 + b.m >= nowMin);
   const upcomingRinko = buses.find(b => b.company === 'rinko' && b.h * 60 + b.m >= nowMin);
 
-  const nextEl = document.getElementById('next-buses');
+  const headerNext = document.getElementById('header-next-buses');
   const nextBuses = [upcomingCity, upcomingRinko].filter(Boolean)
-    .sort((a, b) => a.h * 60 + a.m - (b.h * 60 + b.m))
-    .slice(0, 3);
+    .sort((a, b) => a.h * 60 + a.m - (b.h * 60 + b.m));
 
   if (nextBuses.length === 0) {
-    nextEl.innerHTML = '<span style="color:#92400e;font-size:13px;">本日の残りのバスはありません</span>';
+    headerNext.innerHTML = '<span class="hn-empty">本日の運行終了</span>';
   } else {
-    nextEl.innerHTML = nextBuses.map(b => {
+    headerNext.innerHTML = nextBuses.map(function(b) {
       const diff = b.h * 60 + b.m - nowMin;
-      const cls = b.company === 'city' ? 'nc-city' : 'nc-rinko';
-      const remain = diff === 0 ? '🚌 まもなく' : `あと ${diff}分`;
-      return `<div class="next-card ${cls}">
-        <div class="nc-time">${pad(b.h)}:${pad(b.m)}</div>
-        <div class="nc-label">${b.label}（${b.stop}）</div>
-        <div class="nc-remain">${remain}</div>
-      </div>`;
+      const cls = b.company === 'city' ? 'hn-city' : 'hn-rinko';
+      const remain = diff === 0 ? '今すぐ' : 'あと' + diff + '分';
+      return '<div class="hn-card ' + cls + '">' +
+        '<div class="hn-time">' + pad(b.h) + ':' + pad(b.m) + '</div>' +
+        '<div class="hn-remain">' + remain + '</div>' +
+        '<div class="hn-label">' + b.label + '</div>' +
+        '</div>';
     }).join('');
   }
 
