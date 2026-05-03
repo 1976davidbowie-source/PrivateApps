@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>通勤バス 帰り 時刻表</title>
+<title>通勤バス 行き 時刻表</title>
 <style>
   :root {
     --city: #0ea5e9;
@@ -379,11 +379,11 @@ const TYPE_JA = { weekday: '平日', saturday: '土曜', holiday: '休日' };
 function render() {
   try {
   const now = new Date();
-  dbLog('render()', new Date().toLocaleString('ja-JP'));
-  dbLog('now.getHours()', now.getHours());
-  dbLog('now.getMinutes()', now.getMinutes());
   const nowMin = now.getHours() * 60 + now.getMinutes();
   const type = getDayType(now);
+  dbLog('render()', now.getHours() + ':' + now.getMinutes());
+  dbLog('dayType', type);
+  dbLog('getDay()', now.getDay());
 
   document.getElementById('clock').textContent =
     `${pad(now.getHours())}:${pad(now.getMinutes())}`;
@@ -392,8 +392,8 @@ function render() {
 
   const buses = getAllBuses(now);
   dbLog('総バス数', buses.length);
-  dbLog('市営バス数', buses.filter(b=>b.company==='city').length);
-  dbLog('臨港バス数', buses.filter(b=>b.company==='rinko').length);
+  dbLog('市営', buses.filter(function(b){return b.company==='city';}).length);
+  dbLog('臨港', buses.filter(function(b){return b.company==='rinko';}).length);
 
   // 次のバス
   const upcomingCity  = buses.find(b => b.company === 'city'  && b.h * 60 + b.m >= nowMin);
@@ -485,7 +485,43 @@ function render() {
       nextRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 300);
   }
+  dbLog('render完了', 'OK');
+  } catch(e) {
+    dbLog('render ERROR', e.message + ' / ' + e.stack, true);
+    document.getElementById('next-buses').innerHTML =
+      '<span style="color:#dc2626;font-size:12px;">エラー: ' + e.message + '</span>';
+    const btn = document.getElementById('debug-toggle');
+    if (btn) { btn.textContent = '🔴 ERROR'; btn.style.background='#dc2626'; }
+  }
 }
+
+// =============================================
+// デバッグ機能
+// =============================================
+const dbLogs = [];
+function dbLog(key, val, isErr) {
+  dbLogs.push({ key, val: String(val), isErr: !!isErr });
+  const el = document.getElementById('debug-log');
+  if (!el) return;
+  el.innerHTML = dbLogs.map(function(l) {
+    return '<div class="dbg-row"><span class="dbg-key">' + l.key + '</span>' +
+      '<span class="dbg-val' + (l.isErr ? ' dbg-err' : '') + '">' +
+      l.val.replace(/</g,'&lt;') + '</span></div>';
+  }).join('');
+}
+function toggleDebug() {
+  const panel = document.getElementById('debug-panel');
+  const btn   = document.getElementById('debug-toggle');
+  const show  = panel.style.display !== 'block';
+  panel.style.display = show ? 'block' : 'none';
+  btn.classList.toggle('active', show);
+}
+window.onerror = function(msg, src, line, col, err) {
+  dbLog('JS ERROR', msg + ' (line:' + line + ')', true);
+  dbLog('stack', err ? String(err.stack) : 'none', true);
+  const btn = document.getElementById('debug-toggle');
+  if (btn) { btn.textContent = '🔴 ERROR'; btn.style.background = '#dc2626'; }
+};
 
 render();
 setInterval(render, 10000);
