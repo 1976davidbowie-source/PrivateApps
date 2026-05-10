@@ -43,11 +43,11 @@
 
   /* ヘッダー */
   .header {
-    padding: 52px 24px 20px;
+    padding: 52px 12px 20px;
     position: relative;
   }
   .header-date {
-    font-size: 11px;
+    font-size: 28px;
     letter-spacing: .15em;
     color: var(--muted);
     font-family: 'Zen Kaku Gothic New', sans-serif;
@@ -65,7 +65,7 @@
     color: var(--warm);
   }
   .header-sub {
-    font-size: 12px;
+    font-size: 30px;
     color: var(--muted);
     margin-top: 6px;
     font-weight: 300;
@@ -74,7 +74,7 @@
   /* タブ */
   .tabs {
     display: flex;
-    padding: 0 24px;
+    padding: 0 12px;
     gap: 0;
     margin-bottom: 24px;
     border-bottom: 1px solid rgba(26,26,46,.08);
@@ -82,7 +82,7 @@
   .tab {
     flex: 1;
     padding: 10px 0;
-    font-size: 13px;
+    font-size: 32px;
     font-weight: 400;
     color: var(--muted);
     background: none;
@@ -100,7 +100,7 @@
   }
 
   /* ビュー */
-  .view { display: none; padding: 0 20px; animation: fadeUp .3s ease; }
+  .view { display: none; padding: 0 10px; animation: fadeUp .3s ease; }
   .view.active { display: block; }
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(8px); }
@@ -111,7 +111,7 @@
   .sensor-bar {
     display: flex;
     gap: 8px;
-    padding: 12px 16px;
+    padding: 12px 8px;
     background: rgba(255,255,255,.6);
     border-radius: 14px;
     border: 0.5px solid rgba(200,149,108,.2);
@@ -122,16 +122,16 @@
     flex: 1;
     text-align: center;
   }
-  .sensor-icon { font-size: 16px; margin-bottom: 2px; }
-  .sensor-val { font-size: 11px; font-weight: 500; color: var(--ink); }
-  .sensor-lbl { font-size: 9px; color: var(--muted); letter-spacing: .05em; }
+  .sensor-icon { font-size: 40px; margin-bottom: 2px; }
+  .sensor-val { font-size: 28px; font-weight: 500; color: var(--ink); }
+  .sensor-lbl { font-size: 22px; color: var(--muted); letter-spacing: .05em; }
 
   /* かけらカード */
   .kakera-card {
     background: rgba(255,255,255,.75);
     border-radius: 18px;
     border: 0.5px solid rgba(200,149,108,.25);
-    padding: 18px;
+    padding: 18px 10px;
     margin-bottom: 12px;
     backdrop-filter: blur(6px);
     transition: transform .15s, box-shadow .15s;
@@ -158,25 +158,25 @@
     margin-bottom: 12px;
   }
   .kakera-emoji {
-    font-size: 22px;
+    font-size: 55px;
     line-height: 1;
     margin-top: 2px;
   }
   .kakera-content { flex: 1; }
   .kakera-time {
-    font-size: 10px;
+    font-size: 25px;
     color: var(--muted);
     letter-spacing: .08em;
     margin-bottom: 4px;
   }
   .kakera-text {
-    font-size: 14px;
+    font-size: 35px;
     line-height: 1.6;
     color: var(--ink);
     font-weight: 400;
   }
   .kakera-hint {
-    font-size: 12px;
+    font-size: 30px;
     color: var(--warm);
     margin-top: 6px;
     font-style: italic;
@@ -192,7 +192,7 @@
     border-top: 0.5px solid rgba(26,26,46,.06);
   }
   .rating-label {
-    font-size: 10px;
+    font-size: 25px;
     color: var(--muted);
     letter-spacing: .05em;
     flex-shrink: 0;
@@ -208,7 +208,7 @@
     border-radius: 10px;
     border: 0.5px solid rgba(26,26,46,.1);
     background: rgba(255,255,255,.5);
-    font-size: 14px;
+    font-size: 35px;
     cursor: pointer;
     transition: all .15s;
     text-align: center;
@@ -217,7 +217,7 @@
     align-items: center;
     gap: 2px;
   }
-  .rating-btn span { font-size: 8px; color: var(--muted); }
+  .rating-btn span { font-size: 20px; color: var(--muted); }
   .rating-btn.selected-smile { background: rgba(90,158,111,.12); border-color: var(--smile); }
   .rating-btn.selected-star  { background: rgba(212,160,23,.12); border-color: var(--star); }
   .rating-btn.selected-fire  { background: rgba(232,93,47,.12); border-color: var(--fire); }
@@ -230,7 +230,7 @@
     border: 1.5px dashed rgba(200,149,108,.4);
     background: transparent;
     color: var(--warm);
-    font-size: 14px;
+    font-size: 35px;
     cursor: pointer;
     font-family: 'Zen Kaku Gothic New', sans-serif;
     display: flex;
@@ -267,7 +267,7 @@
   }
   .modal-title {
     font-family: 'Shippori Mincho', serif;
-    font-size: 18px;
+    font-size: 45px;
     margin-bottom: 16px;
     color: var(--ink);
   }
@@ -278,7 +278,7 @@
     border: 0.5px solid rgba(200,149,108,.3);
     background: rgba(255,255,255,.8);
     font-family: 'Zen Kaku Gothic New', sans-serif;
-    font-size: 14px;
+    font-size: 35px;
     color: var(--ink);
     resize: none;
     height: 100px;
@@ -296,7 +296,7 @@
     border-radius: 20px;
     border: 0.5px solid rgba(26,26,46,.1);
     background: rgba(255,255,255,.6);
-    font-size: 18px;
+    font-size: 45px;
     cursor: pointer;
     transition: all .15s;
   }
@@ -308,7 +308,7 @@
     border: none;
     background: var(--warm);
     color: white;
-    font-size: 15px;
+    font-size: 38px;
     font-family: 'Zen Kaku Gothic New', sans-serif;
     cursor: pointer;
     font-weight: 500;
@@ -321,7 +321,7 @@
     border: none;
     background: transparent;
     color: var(--muted);
-    font-size: 14px;
+    font-size: 35px;
     font-family: 'Zen Kaku Gothic New', sans-serif;
     cursor: pointer;
     margin-top: 8px;
@@ -331,17 +331,17 @@
   .week-header {
     background: linear-gradient(135deg, var(--warm), var(--glow));
     border-radius: 18px;
-    padding: 20px;
+    padding: 20px 10px;
     margin-bottom: 20px;
     color: white;
   }
-  .week-header-label { font-size: 11px; letter-spacing: .1em; opacity: .8; margin-bottom: 4px; }
-  .week-header-title { font-family: 'Shippori Mincho', serif; font-size: 20px; font-weight: 600; }
-  .week-header-sub { font-size: 12px; opacity: .8; margin-top: 6px; }
+  .week-header-label { font-size: 28px; letter-spacing: .1em; opacity: .8; margin-bottom: 4px; }
+  .week-header-title { font-family: 'Shippori Mincho', serif; font-size: 50px; font-weight: 600; }
+  .week-header-sub { font-size: 30px; opacity: .8; margin-top: 6px; }
 
   .fire-section { margin-bottom: 20px; }
   .section-label {
-    font-size: 11px;
+    font-size: 28px;
     letter-spacing: .1em;
     color: var(--muted);
     margin-bottom: 10px;
@@ -367,42 +367,42 @@
     align-items: flex-start;
   }
   .week-card-day {
-    font-size: 10px;
+    font-size: 25px;
     color: var(--muted);
     min-width: 28px;
     text-align: center;
     margin-top: 2px;
   }
   .week-card-content { flex: 1; }
-  .week-card-text { font-size: 14px; color: var(--ink); line-height: 1.5; }
-  .week-card-hint { font-size: 12px; color: var(--warm); margin-top: 4px; font-style: italic; font-family: 'Shippori Mincho', serif; }
+  .week-card-text { font-size: 35px; color: var(--ink); line-height: 1.5; }
+  .week-card-hint { font-size: 30px; color: var(--warm); margin-top: 4px; font-style: italic; font-family: 'Shippori Mincho', serif; }
 
   /* 空状態 */
   .empty-state {
     text-align: center;
-    padding: 40px 20px;
+    padding: 40px 10px;
     color: var(--muted);
   }
-  .empty-icon { font-size: 36px; margin-bottom: 12px; }
-  .empty-text { font-size: 13px; line-height: 1.6; }
+  .empty-icon { font-size: 90px; margin-bottom: 12px; }
+  .empty-text { font-size: 32px; line-height: 1.6; }
 
   /* AI一言 */
   .ai-comment {
     background: rgba(200,149,108,.08);
     border-radius: 14px;
-    padding: 14px 16px;
+    padding: 14px 8px;
     border-left: 3px solid var(--warm);
     margin-bottom: 16px;
   }
-  .ai-comment-label { font-size: 10px; color: var(--warm); letter-spacing: .08em; margin-bottom: 4px; }
-  .ai-comment-text { font-size: 13px; color: var(--ink); line-height: 1.6; font-family: 'Shippori Mincho', serif; }
+  .ai-comment-label { font-size: 25px; color: var(--warm); letter-spacing: .08em; margin-bottom: 4px; }
+  .ai-comment-text { font-size: 32px; color: var(--ink); line-height: 1.6; font-family: 'Shippori Mincho', serif; }
 
   /* 老子カード */
   .laozi-card {
     background: linear-gradient(135deg, rgba(26,26,46,.04), rgba(200,149,108,.06));
     border-radius: 16px;
     border: 0.5px solid rgba(200,149,108,.3);
-    padding: 18px 20px;
+    padding: 18px 10px;
     margin-bottom: 16px;
     position: relative;
     overflow: hidden;
@@ -419,14 +419,14 @@
     pointer-events: none;
   }
   .laozi-label {
-    font-size: 9px;
+    font-size: 22px;
     letter-spacing: .15em;
     color: var(--muted);
     margin-bottom: 8px;
   }
   .laozi-chinese {
     font-family: 'Shippori Mincho', serif;
-    font-size: 15px;
+    font-size: 38px;
     color: var(--warm);
     letter-spacing: .1em;
     margin-bottom: 6px;
@@ -434,13 +434,13 @@
   }
   .laozi-japanese {
     font-family: 'Shippori Mincho', serif;
-    font-size: 13px;
+    font-size: 32px;
     color: var(--ink);
     line-height: 1.7;
     margin-bottom: 6px;
   }
   .laozi-connect {
-    font-size: 11px;
+    font-size: 28px;
     color: var(--muted);
     line-height: 1.6;
     font-style: italic;
@@ -448,7 +448,7 @@
 
   /* かけらカード内の老子一言 */
   .kakera-laozi {
-    font-size: 11px;
+    font-size: 28px;
     color: var(--muted);
     margin-top: 8px;
     padding-top: 8px;
@@ -465,7 +465,7 @@
     background: linear-gradient(135deg, rgba(26,26,46,.04), rgba(200,149,108,.06));
     border-radius: 16px;
     border: 0.5px solid rgba(200,149,108,.3);
-    padding: 18px 20px;
+    padding: 18px 10px;
     margin-bottom: 16px;
     position: relative;
     overflow: hidden;
@@ -481,10 +481,10 @@
     line-height: 1;
     pointer-events: none;
   }
-  .laozi-label { font-size: 9px; letter-spacing: .15em; color: var(--muted); margin-bottom: 8px; }
-  .laozi-chinese { font-family: 'Shippori Mincho', serif; font-size: 15px; color: var(--warm); letter-spacing: .1em; margin-bottom: 6px; font-weight: 600; }
-  .laozi-japanese { font-family: 'Shippori Mincho', serif; font-size: 13px; color: var(--ink); line-height: 1.7; margin-bottom: 6px; }
-  .laozi-connect { font-size: 11px; color: var(--muted); line-height: 1.6; font-style: italic; }
+  .laozi-label { font-size: 22px; letter-spacing: .15em; color: var(--muted); margin-bottom: 8px; }
+  .laozi-chinese { font-family: 'Shippori Mincho', serif; font-size: 38px; color: var(--warm); letter-spacing: .1em; margin-bottom: 6px; font-weight: 600; }
+  .laozi-japanese { font-family: 'Shippori Mincho', serif; font-size: 32px; color: var(--ink); line-height: 1.7; margin-bottom: 6px; }
+  .laozi-connect { font-size: 28px; color: var(--muted); line-height: 1.6; font-style: italic; }
 
   /* ナビ */
   .nav {
@@ -511,8 +511,8 @@
     cursor: pointer;
     padding: 6px 0;
   }
-  .nav-icon { font-size: 20px; }
-  .nav-lbl { font-size: 9px; color: var(--muted); letter-spacing: .05em; }
+  .nav-icon { font-size: 50px; }
+  .nav-lbl { font-size: 22px; color: var(--muted); letter-spacing: .05em; }
   .nav-btn.active .nav-lbl { color: var(--warm); font-weight: 500; }
 
   /* 通知バッジ */
@@ -541,6 +541,7 @@
   <div class="tabs">
     <button class="tab active" onclick="switchTab('today')">今日</button>
     <button class="tab" onclick="switchTab('week')">今週のネタ</button>
+    <button class="tab" onclick="switchTab('settings')">設定</button>
   </div>
 
   <!-- 今日ビュー -->
@@ -572,7 +573,7 @@
 
     <!-- 手動追加ボタン -->
     <button class="add-btn" onclick="openModal()">
-      <span style="font-size:18px">＋</span> かけらを記録する
+      <span style="font-size: 45px">＋</span> かけらを記録する
     </button>
 
     <!-- かけらリスト -->
@@ -643,6 +644,22 @@
   </div>
 </div>
 
+
+  <!-- 設定ビュー -->
+  <div id="view-settings" class="view">
+
+    <div style="margin-bottom:20px;">
+      <div style="font-family:'Shippori Mincho',serif;font-size:22px;color:var(--ink);margin-bottom:6px;">文字サイズの設定</div>
+      <div style="font-size:18px;color:var(--muted);line-height:1.6;">各パーツの文字サイズをスライダーで調整できます。変更はすぐに反映されます。</div>
+    </div>
+
+    <div id="settings-list"></div>
+
+    <button onclick="resetFontSizes()" style="width:100%;margin-top:8px;padding:16px;border-radius:14px;border:0.5px solid rgba(200,149,108,.3);background:transparent;color:var(--muted);font-size:22px;font-family:'Zen Kaku Gothic New',sans-serif;cursor:pointer;">
+      すべてリセット
+    </button>
+  </div>
+
 <!-- ナビ -->
 <div class="nav">
   <button class="nav-btn active" id="nav-today" onclick="switchTab('today')">
@@ -655,6 +672,10 @@
       <span class="badge-dot" id="week-badge" style="display:none"></span>
     </span>
     <span class="nav-lbl">会話ネタ</span>
+  </button>
+  <button class="nav-btn" id="nav-settings" onclick="switchTab('settings')">
+    <span class="nav-icon">⚙️</span>
+    <span class="nav-lbl">設定</span>
   </button>
 </div>
 
@@ -861,7 +882,7 @@ function renderWeek() {
   const smile = rated.filter(d => d.rating === 'smile');
 
   const makeCards = (items) => {
-    if (items.length === 0) return '<div style="font-size:13px;color:var(--muted);padding:8px 0;">まだありません</div>';
+    if (items.length === 0) return '<div style="font-size: 32px;color:var(--muted);padding:8px 0;">まだありません</div>';
     return items.map(k => `
       <div class="week-card">
         <div class="week-card-day">${dayLabel(k.date)}<br>${k.time}</div>
@@ -899,15 +920,17 @@ function updateWeekBadge() {
 // タブ切り替え
 // ============================================================
 function switchTab(tab) {
+  const tabs = ['today','week','settings'];
   document.querySelectorAll('.tab').forEach((t, i) => {
-    t.classList.toggle('active', ['today','week'][i] === tab);
+    t.classList.toggle('active', tabs[i] === tab);
   });
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('view-' + tab).classList.add('active');
   document.querySelectorAll('.nav-btn').forEach((b, i) => {
-    b.classList.toggle('active', ['today','week'][i] === tab);
+    b.classList.toggle('active', tabs[i] === tab);
   });
   if (tab === 'week') renderWeek();
+  if (tab === 'settings') renderSettings();
 }
 
 // ============================================================
@@ -983,9 +1006,136 @@ function autoKakeraCheck() {
   });
 }
 
+
+// ============================================================
+// フォントサイズ設定
+// ============================================================
+const FONT_KEY = 'kakera_fonts';
+
+const fontSettings = [
+  { id: 'fs_date',        label: '日付',              selector: '.header-date',       default: 18 },
+  { id: 'fs_sub',         label: 'サブタイトル',      selector: '.header-sub',        default: 14 },
+  { id: 'fs_tab',         label: 'タブ',              selector: '.tab',               default: 16 },
+  { id: 'fs_sensor_val',  label: 'センサー値',        selector: '.sensor-val',        default: 15 },
+  { id: 'fs_sensor_lbl',  label: 'センサーラベル',    selector: '.sensor-lbl',        default: 16 },
+  { id: 'fs_sensor_icon', label: 'センサーアイコン',  selector: '.sensor-icon',       default: 36 },
+  { id: 'fs_kakera_time', label: 'かけら時刻',        selector: '.kakera-time',       default: 20 },
+  { id: 'fs_kakera_text', label: 'かけら本文',        selector: '.kakera-text',       default: 12 },
+  { id: 'fs_kakera_hint', label: 'かけらヒント',      selector: '.kakera-hint',       default: 10 },
+  { id: 'fs_kakera_emoji',label: 'かけら絵文字',      selector: '.kakera-emoji',      default: 36 },
+  { id: 'fs_rating_lbl',  label: '感動レベルラベル',  selector: '.rating-label',      default: 20 },
+  { id: 'fs_rating_btn',  label: '感動ボタン絵文字',  selector: '.rating-btn',        default: 26 },
+  { id: 'fs_add_btn',     label: '追加ボタン',        selector: '.add-btn',           default: 21 },
+  { id: 'fs_week_title',  label: '週タイトル',        selector: '.week-header-title', default: 25 },
+  { id: 'fs_week_lbl',    label: '週ヘッダーラベル',  selector: '.week-header-label', default: 24 },
+  { id: 'fs_week_text',   label: '週カード本文',      selector: '.week-card-text',    default: 20 },
+  { id: 'fs_week_hint',   label: '週カードヒント',    selector: '.week-card-hint',    default: 20 },
+  { id: 'fs_ai_text',     label: 'AIコメント',        selector: '.ai-comment-text',   default: 20 },
+  { id: 'fs_laozi_ch',    label: '老子漢文',          selector: '.laozi-chinese',     default: 25 },
+  { id: 'fs_laozi_jp',    label: '老子日本語訳',      selector: '.laozi-japanese',    default: 20 },
+  { id: 'fs_laozi_con',   label: '老子コメント',      selector: '.laozi-connect',     default: 20 },
+  { id: 'fs_nav_lbl',     label: 'ナビラベル',        selector: '.nav-lbl',           default: 15 },
+];
+
+function loadFonts() {
+  try { return JSON.parse(localStorage.getItem(FONT_KEY)) || {}; } catch { return {}; }
+}
+
+function saveFonts(obj) {
+  localStorage.setItem(FONT_KEY, JSON.stringify(obj));
+}
+
+function applyFonts() {
+  const saved = loadFonts();
+  fontSettings.forEach(s => {
+    const size = saved[s.id] || s.default;
+    document.querySelectorAll(s.selector).forEach(el => {
+      el.style.fontSize = size + 'px';
+    });
+  });
+}
+
+function resetFontSizes() {
+  localStorage.removeItem(FONT_KEY);
+  applyFonts();
+  renderSettings();
+}
+
+function getPreviewText(id) {
+  const now = new Date();
+  const days = ['日','月','火','水','木','金','土'];
+  const dateStr = `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日（${days[now.getDay()]}）`;
+  const map = {
+    fs_date:         dateStr,
+    fs_sub:          '見逃していた、あなたの一日の断片',
+    fs_tab:          '今日　／　今週のネタ　／　設定',
+    fs_sensor_val:   '— ／ 許可待ち ／ 17:40 ／ 5',
+    fs_sensor_lbl:   '歩数　場所　現在時刻　かけら',
+    fs_sensor_icon:  '🚶 📍 🕐 ✨',
+    fs_kakera_time:  '12:18',
+    fs_kakera_text:  'いつもと違うルートでランチへ。偶然見つけた路地の定食屋に入った。',
+    fs_kakera_hint:  '奥さんに話すネタになりそう。今夜、夕食のときに。',
+    fs_kakera_emoji: '🍜',
+    fs_rating_lbl:   '感動レベル',
+    fs_rating_btn:   '😊　✨　🔥',
+    fs_add_btn:      '＋ かけらを記録する',
+    fs_week_title:   '今週の会話ネタ',
+    fs_week_lbl:     "TODAY'S HIGHLIGHT",
+    fs_week_text:    '🍜 いつもと違うルートでランチへ。偶然見つけた路地の定食屋に入った。',
+    fs_week_hint:    '奥さんに話すネタになりそう。今夜、夕食のときに。',
+    fs_ai_text:      '🔥マークの話、今夜奥さんに話してみませんか？',
+    fs_laozi_ch:     '知足者富',
+    fs_laozi_jp:     '足るを知る者は富む。',
+    fs_laozi_con:    'お金も演出も要らない。今日のかけらの中に、すでに豊かさは宿っている。',
+    fs_nav_lbl:      '今日　会話ネタ　設定',
+  };
+  return map[id] || 'サンプルテキスト';
+}
+
+function renderSettings() {
+  const saved = loadFonts();
+  const list = document.getElementById('settings-list');
+  list.innerHTML = fontSettings.map(s => {
+    const current = saved[s.id] || s.default;
+    const preview = getPreviewText(s.id);
+    return `
+      <div style="background:rgba(255,255,255,.75);border-radius:16px;border:0.5px solid rgba(200,149,108,.2);padding:16px 18px;margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div style="font-size:22px;color:var(--ink);font-weight:500;">${s.label}</div>
+          <div style="font-size:26px;color:var(--warm);font-weight:600;font-family:monospace;" id="lbl_${s.id}">${current}px</div>
+        </div>
+        <div style="font-size:${current}px;color:var(--muted);margin-bottom:12px;font-family:'Zen Kaku Gothic New',sans-serif;line-height:1.5;word-break:break-all;" id="preview_${s.id}">${preview}</div>
+        <input type="range" min="10" max="60" value="${current}"
+          style="width:100%;accent-color:var(--warm);"
+          oninput="updateFont('${s.id}','${s.selector}',this.value)"
+        >
+        <div style="display:flex;justify-content:space-between;font-size:18px;color:var(--muted);margin-top:4px;"><span>10px</span><span>60px</span></div>
+      </div>
+    `;
+  }).join('');
+}
+
+function updateFont(id, selector, value) {
+  const px = parseInt(value);
+  // ラベルとプレビュー更新
+  const lbl = document.getElementById('lbl_' + id);
+  const preview = document.getElementById('preview_' + id);
+  if (lbl) lbl.textContent = px + 'px';
+  if (preview) preview.style.fontSize = px + 'px';
+  // 実際の要素に適用
+  document.querySelectorAll(selector).forEach(el => {
+    el.style.fontSize = px + 'px';
+  });
+  // 保存
+  const saved = loadFonts();
+  saved[id] = px;
+  saveFonts(saved);
+}
+
 // ============================================================
 // 初期化
 // ============================================================
+applyFonts();
 updateDate();
 updateClock();
 setInterval(updateClock, 30000);
