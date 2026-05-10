@@ -704,7 +704,7 @@ const sampleKakeras = [
     time: '12:18',
     emoji: '🍜',
     text: 'いつもと違うルートでランチへ。偶然見つけた路地の定食屋に入った。',
-    hint: '奥さんに話すネタ → 「今日さ、迷子になって面白い店見つけたんだよ」',
+    hint: '家族に話すネタ → 「今日さ、迷子になって面白い店見つけたんだよ」',
     rating: null,
     date: todayStr(),
     type: 'manual'
@@ -774,7 +774,7 @@ function saveKakera() {
   const now = new Date();
   const time = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
   const hints = [
-    '奥さんに話すネタになりそう。今夜、夕食のときに。',
+    '家族に話すネタになりそう。今夜、夕食のときに。',
     'たわいもないけど、こういう話が会話を豊かにする。',
     'これ、意外と面白い話になるかも。',
     '「今日さ、こんなことあってさ」って話しかけてみては？',
@@ -900,7 +900,7 @@ function renderWeek() {
 
   // AI一言コメント
   const comments = [
-    `今週は ${rated.length} 個のかけらが集まりました。🔥マークの話、今夜奥さんに話してみませんか？`,
+    `今週は ${rated.length} 個のかけらが集まりました。🔥マークの話、今夜家族に話してみませんか？`,
     `「たわいもない話」こそ、二人の距離を縮めます。今週のかけら、ぜひ話のきっかけに。`,
     `${fire.length > 0 ? `特に「${fire[0].text.slice(0,15)}…」の話、喜ばれそうです。` : 'まだ評価中ですね。気になったかけらに感動レベルをつけてみてください。'}`,
   ];
@@ -1074,7 +1074,7 @@ function getPreviewText(id) {
     fs_sensor_icon:  '🚶 📍 🕐 ✨',
     fs_kakera_time:  '12:18',
     fs_kakera_text:  'いつもと違うルートでランチへ。偶然見つけた路地の定食屋に入った。',
-    fs_kakera_hint:  '奥さんに話すネタになりそう。今夜、夕食のときに。',
+    fs_kakera_hint:  '家族に話すネタになりそう。今夜、夕食のときに。',
     fs_kakera_emoji: '🍜',
     fs_rating_lbl:   '感動レベル',
     fs_rating_btn:   '😊　✨　🔥',
@@ -1082,8 +1082,8 @@ function getPreviewText(id) {
     fs_week_title:   '今週の会話ネタ',
     fs_week_lbl:     "TODAY'S HIGHLIGHT",
     fs_week_text:    '🍜 いつもと違うルートでランチへ。偶然見つけた路地の定食屋に入った。',
-    fs_week_hint:    '奥さんに話すネタになりそう。今夜、夕食のときに。',
-    fs_ai_text:      '🔥マークの話、今夜奥さんに話してみませんか？',
+    fs_week_hint:    '家族に話すネタになりそう。今夜、夕食のときに。',
+    fs_ai_text:      '🔥マークの話、今夜家族に話してみませんか？',
     fs_laozi_ch:     '知足者富',
     fs_laozi_jp:     '足るを知る者は富む。',
     fs_laozi_con:    'お金も演出も要らない。今日のかけらの中に、すでに豊かさは宿っている。',
