@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>今日のかけら</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@300;400;500&family=Shippori+Mincho:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --paper: #f5f0e8;
+    --warm: #c8956c;
+    --soft: #e8d5b7;
+    --muted: #8a7a6a;
+    --glow: #f0a070;
+    --fire: #e85d2f;
+    --star: #d4a017;
+    --smile: #5a9e6f;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ノイズテクスチャ */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+  }
+
+  .app { position: relative; z-index: 1; max-width: 430px; margin: 0 auto; padding-bottom: 80px; }
+
+  /* ヘッダー */
+  .header {
+    padding: 52px 24px 20px;
+    position: relative;
+  }
+  .header-date {
+    font-size: 11px;
+    letter-spacing: .15em;
+    color: var(--muted);
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-weight: 300;
+    margin-bottom: 6px;
+  }
+  .header-title {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+  .header-title span {
+    color: var(--warm);
+  }
+  .header-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 6px;
+    font-weight: 300;
+  }
+
+  /* タブ */
+  .tabs {
+    display: flex;
+    padding: 0 24px;
+    gap: 0;
+    margin-bottom: 24px;
+    border-bottom: 1px solid rgba(26,26,46,.08);
+  }
+  .tab {
+    flex: 1;
+    padding: 10px 0;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--muted);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: all .2s;
+    letter-spacing: .05em;
+    margin-bottom: -1px;
+  }
+  .tab.active {
+    color: var(--ink);
+    border-bottom-color: var(--warm);
+    font-weight: 500;
+  }
+
+  /* ビュー */
+  .view { display: none; padding: 0 20px; animation: fadeUp .3s ease; }
+  .view.active { display: block; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* センサー状態バー */
+  .sensor-bar {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    background: rgba(255,255,255,.6);
+    border-radius: 14px;
+    border: 0.5px solid rgba(200,149,108,.2);
+    margin-bottom: 20px;
+    backdrop-filter: blur(8px);
+  }
+  .sensor-item {
+    flex: 1;
+    text-align: center;
+  }
+  .sensor-icon { font-size: 16px; margin-bottom: 2px; }
+  .sensor-val { font-size: 11px; font-weight: 500; color: var(--ink); }
+  .sensor-lbl { font-size: 9px; color: var(--muted); letter-spacing: .05em; }
+
+  /* かけらカード */
+  .kakera-card {
+    background: rgba(255,255,255,.75);
+    border-radius: 18px;
+    border: 0.5px solid rgba(200,149,108,.25);
+    padding: 18px;
+    margin-bottom: 12px;
+    backdrop-filter: blur(6px);
+    transition: transform .15s, box-shadow .15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .kakera-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: var(--warm);
+    opacity: 0;
+    transition: opacity .2s;
+  }
+  .kakera-card.rated::before { opacity: 1; }
+
+  .kakera-card:active { transform: scale(.98); }
+
+  .kakera-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .kakera-emoji {
+    font-size: 22px;
+    line-height: 1;
+    margin-top: 2px;
+  }
+  .kakera-content { flex: 1; }
+  .kakera-time {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: .08em;
+    margin-bottom: 4px;
+  }
+  .kakera-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--ink);
+    font-weight: 400;
+  }
+  .kakera-hint {
+    font-size: 12px;
+    color: var(--warm);
+    margin-top: 6px;
+    font-style: italic;
+    font-family: 'Shippori Mincho', serif;
+  }
+
+  /* 感動レベル */
+  .rating-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding-top: 12px;
+    border-top: 0.5px solid rgba(26,26,46,.06);
+  }
+  .rating-label {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: .05em;
+    flex-shrink: 0;
+  }
+  .rating-btns {
+    display: flex;
+    gap: 6px;
+    flex: 1;
+  }
+  .rating-btn {
+    flex: 1;
+    padding: 7px 4px;
+    border-radius: 10px;
+    border: 0.5px solid rgba(26,26,46,.1);
+    background: rgba(255,255,255,.5);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all .15s;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .rating-btn span { font-size: 8px; color: var(--muted); }
+  .rating-btn.selected-smile { background: rgba(90,158,111,.12); border-color: var(--smile); }
+  .rating-btn.selected-star  { background: rgba(212,160,23,.12); border-color: var(--star); }
+  .rating-btn.selected-fire  { background: rgba(232,93,47,.12); border-color: var(--fire); }
+
+  /* 新規かけら記録 */
+  .add-btn {
+    width: 100%;
+    padding: 16px;
+    border-radius: 18px;
+    border: 1.5px dashed rgba(200,149,108,.4);
+    background: transparent;
+    color: var(--warm);
+    font-size: 14px;
+    cursor: pointer;
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    transition: background .2s;
+  }
+  .add-btn:active { background: rgba(200,149,108,.05); }
+
+  /* 手動記録モーダル */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(26,26,46,.4);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    align-items: flex-end;
+    padding: 0;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--paper);
+    border-radius: 24px 24px 0 0;
+    padding: 24px 20px 40px;
+    width: 100%;
+    animation: slideUp .25s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+  }
+  .modal-title {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 18px;
+    margin-bottom: 16px;
+    color: var(--ink);
+  }
+  .modal textarea {
+    width: 100%;
+    padding: 14px;
+    border-radius: 14px;
+    border: 0.5px solid rgba(200,149,108,.3);
+    background: rgba(255,255,255,.8);
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    resize: none;
+    height: 100px;
+    outline: none;
+    margin-bottom: 12px;
+  }
+  .modal-emoji-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .emoji-btn {
+    padding: 8px 14px;
+    border-radius: 20px;
+    border: 0.5px solid rgba(26,26,46,.1);
+    background: rgba(255,255,255,.6);
+    font-size: 18px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .emoji-btn.selected { background: rgba(200,149,108,.15); border-color: var(--warm); }
+  .modal-submit {
+    width: 100%;
+    padding: 16px;
+    border-radius: 14px;
+    border: none;
+    background: var(--warm);
+    color: white;
+    font-size: 15px;
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    cursor: pointer;
+    font-weight: 500;
+    letter-spacing: .05em;
+  }
+  .modal-cancel {
+    width: 100%;
+    padding: 12px;
+    border-radius: 14px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-size: 14px;
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+
+  /* 週末ビュー */
+  .week-header {
+    background: linear-gradient(135deg, var(--warm), var(--glow));
+    border-radius: 18px;
+    padding: 20px;
+    margin-bottom: 20px;
+    color: white;
+  }
+  .week-header-label { font-size: 11px; letter-spacing: .1em; opacity: .8; margin-bottom: 4px; }
+  .week-header-title { font-family: 'Shippori Mincho', serif; font-size: 20px; font-weight: 600; }
+  .week-header-sub { font-size: 12px; opacity: .8; margin-top: 6px; }
+
+  .fire-section { margin-bottom: 20px; }
+  .section-label {
+    font-size: 11px;
+    letter-spacing: .1em;
+    color: var(--muted);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 0.5px;
+    background: rgba(26,26,46,.1);
+  }
+
+  .week-card {
+    background: rgba(255,255,255,.75);
+    border-radius: 16px;
+    border: 0.5px solid rgba(200,149,108,.2);
+    padding: 16px;
+    margin-bottom: 10px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .week-card-day {
+    font-size: 10px;
+    color: var(--muted);
+    min-width: 28px;
+    text-align: center;
+    margin-top: 2px;
+  }
+  .week-card-content { flex: 1; }
+  .week-card-text { font-size: 14px; color: var(--ink); line-height: 1.5; }
+  .week-card-hint { font-size: 12px; color: var(--warm); margin-top: 4px; font-style: italic; font-family: 'Shippori Mincho', serif; }
+
+  /* 空状態 */
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+  }
+  .empty-icon { font-size: 36px; margin-bottom: 12px; }
+  .empty-text { font-size: 13px; line-height: 1.6; }
+
+  /* AI一言 */
+  .ai-comment {
+    background: rgba(200,149,108,.08);
+    border-radius: 14px;
+    padding: 14px 16px;
+    border-left: 3px solid var(--warm);
+    margin-bottom: 16px;
+  }
+  .ai-comment-label { font-size: 10px; color: var(--warm); letter-spacing: .08em; margin-bottom: 4px; }
+  .ai-comment-text { font-size: 13px; color: var(--ink); line-height: 1.6; font-family: 'Shippori Mincho', serif; }
+
+  /* 老子カード */
+  .laozi-card {
+    background: linear-gradient(135deg, rgba(26,26,46,.04), rgba(200,149,108,.06));
+    border-radius: 16px;
+    border: 0.5px solid rgba(200,149,108,.3);
+    padding: 18px 20px;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .laozi-card::after {
+    content: '道';
+    position: absolute;
+    right: 16px; top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Shippori Mincho', serif;
+    font-size: 52px;
+    color: rgba(200,149,108,.1);
+    line-height: 1;
+    pointer-events: none;
+  }
+  .laozi-label {
+    font-size: 9px;
+    letter-spacing: .15em;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .laozi-chinese {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 15px;
+    color: var(--warm);
+    letter-spacing: .1em;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .laozi-japanese {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 13px;
+    color: var(--ink);
+    line-height: 1.7;
+    margin-bottom: 6px;
+  }
+  .laozi-connect {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.6;
+    font-style: italic;
+  }
+
+  /* かけらカード内の老子一言 */
+  .kakera-laozi {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 0.5px dashed rgba(200,149,108,.3);
+    font-family: 'Shippori Mincho', serif;
+    font-style: italic;
+    line-height: 1.5;
+  }
+  .kakera-laozi-quote { color: var(--warm); font-weight: 600; }
+
+
+  /* 老子カード */
+  .laozi-card {
+    background: linear-gradient(135deg, rgba(26,26,46,.04), rgba(200,149,108,.06));
+    border-radius: 16px;
+    border: 0.5px solid rgba(200,149,108,.3);
+    padding: 18px 20px;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .laozi-card::after {
+    content: '道';
+    position: absolute;
+    right: 16px; top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Shippori Mincho', serif;
+    font-size: 52px;
+    color: rgba(200,149,108,.1);
+    line-height: 1;
+    pointer-events: none;
+  }
+  .laozi-label { font-size: 9px; letter-spacing: .15em; color: var(--muted); margin-bottom: 8px; }
+  .laozi-chinese { font-family: 'Shippori Mincho', serif; font-size: 15px; color: var(--warm); letter-spacing: .1em; margin-bottom: 6px; font-weight: 600; }
+  .laozi-japanese { font-family: 'Shippori Mincho', serif; font-size: 13px; color: var(--ink); line-height: 1.7; margin-bottom: 6px; }
+  .laozi-connect { font-size: 11px; color: var(--muted); line-height: 1.6; font-style: italic; }
+
+  /* ナビ */
+  .nav {
+    position: fixed;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 430px;
+    background: rgba(245,240,232,.9);
+    backdrop-filter: blur(12px);
+    border-top: 0.5px solid rgba(200,149,108,.2);
+    display: flex;
+    padding: 8px 0 20px;
+    z-index: 50;
+  }
+  .nav-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px 0;
+  }
+  .nav-icon { font-size: 20px; }
+  .nav-lbl { font-size: 9px; color: var(--muted); letter-spacing: .05em; }
+  .nav-btn.active .nav-lbl { color: var(--warm); font-weight: 500; }
+
+  /* 通知バッジ */
+  .badge-dot {
+    position: absolute;
+    top: -2px; right: -2px;
+    width: 8px; height: 8px;
+    background: var(--fire);
+    border-radius: 50%;
+    border: 1.5px solid var(--paper);
+  }
+  .nav-icon-wrap { position: relative; display: inline-block; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ヘッダー -->
+  <div class="header">
+    <div class="header-date" id="header-date"></div>
+    <div class="header-title">今日の<span>かけら</span></div>
+    <div class="header-sub">見逃していた、あなたの一日の断片</div>
+  </div>
+
+  <!-- タブ -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('today')">今日</button>
+    <button class="tab" onclick="switchTab('week')">今週のネタ</button>
+  </div>
+
+  <!-- 今日ビュー -->
+  <div id="view-today" class="view active">
+
+    <!-- センサーバー -->
+    <div class="sensor-bar">
+      <div class="sensor-item">
+        <div class="sensor-icon">🚶</div>
+        <div class="sensor-val" id="step-count">—</div>
+        <div class="sensor-lbl">歩数</div>
+      </div>
+      <div class="sensor-item">
+        <div class="sensor-icon">📍</div>
+        <div class="sensor-val" id="loc-status">取得中</div>
+        <div class="sensor-lbl">場所</div>
+      </div>
+      <div class="sensor-item">
+        <div class="sensor-icon">🕐</div>
+        <div class="sensor-val" id="current-time">—</div>
+        <div class="sensor-lbl">現在時刻</div>
+      </div>
+      <div class="sensor-item">
+        <div class="sensor-icon">✨</div>
+        <div class="sensor-val" id="kakera-count">0</div>
+        <div class="sensor-lbl">かけら</div>
+      </div>
+    </div>
+
+    <!-- 手動追加ボタン -->
+    <button class="add-btn" onclick="openModal()">
+      <span style="font-size:18px">＋</span> かけらを記録する
+    </button>
+
+    <!-- かけらリスト -->
+    <div id="kakera-list"></div>
+
+  </div>
+
+  <!-- 週末ネタビュー -->
+  <div id="view-week" class="view">
+    <div class="week-header">
+      <div class="week-header-label">TODAY'S HIGHLIGHT</div>
+      <div class="week-header-title">今週の会話ネタ</div>
+      <div class="week-header-sub" id="week-summary-sub">🔥マークのかけらをまとめました</div>
+    </div>
+
+    <div class="ai-comment">
+      <div class="ai-comment-label">AI より一言</div>
+      <div class="ai-comment-text" id="ai-comment-text">今週のかけらが集まると、ここにまとめが届きます。</div>
+    </div>
+
+    <div class="laozi-card">
+      <div class="laozi-label">老子より — TAO TE CHING</div>
+      <div class="laozi-chinese" id="laozi-chinese"></div>
+      <div class="laozi-japanese" id="laozi-japanese"></div>
+      <div class="laozi-connect" id="laozi-connect"></div>
+    </div>
+
+    <div class="laozi-card">
+      <div class="laozi-label">老子より — TAO TE CHING</div>
+      <div class="laozi-chinese" id="laozi-chinese"></div>
+      <div class="laozi-japanese" id="laozi-japanese"></div>
+      <div class="laozi-connect" id="laozi-connect"></div>
+    </div>
+
+    <div class="fire-section">
+      <div class="section-label">🔥 これは話したい</div>
+      <div id="fire-list"></div>
+    </div>
+    <div class="fire-section">
+      <div class="section-label">✨ よかった</div>
+      <div id="star-list"></div>
+    </div>
+    <div class="fire-section">
+      <div class="section-label">😊 ちょっといい</div>
+      <div id="smile-list"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- 手動記録モーダル -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-title">かけらを記録</div>
+    <div class="modal-emoji-row" id="emoji-row">
+      <button class="emoji-btn selected" data-emoji="☕" onclick="selectEmoji(this)">☕</button>
+      <button class="emoji-btn" data-emoji="🍜" onclick="selectEmoji(this)">🍜</button>
+      <button class="emoji-btn" data-emoji="🌤" onclick="selectEmoji(this)">🌤</button>
+      <button class="emoji-btn" data-emoji="🚶" onclick="selectEmoji(this)">🚶</button>
+      <button class="emoji-btn" data-emoji="💬" onclick="selectEmoji(this)">💬</button>
+      <button class="emoji-btn" data-emoji="📸" onclick="selectEmoji(this)">📸</button>
+      <button class="emoji-btn" data-emoji="🎵" onclick="selectEmoji(this)">🎵</button>
+      <button class="emoji-btn" data-emoji="✨" onclick="selectEmoji(this)">✨</button>
+    </div>
+    <textarea id="kakera-input" placeholder="何があった？どんな場所にいた？気になったことは？"></textarea>
+    <button class="modal-submit" onclick="saveKakera()">かけらを保存</button>
+    <button class="modal-cancel" onclick="closeModal()">キャンセル</button>
+  </div>
+</div>
+
+<!-- ナビ -->
+<div class="nav">
+  <button class="nav-btn active" id="nav-today" onclick="switchTab('today')">
+    <span class="nav-icon">🌸</span>
+    <span class="nav-lbl">今日</span>
+  </button>
+  <button class="nav-btn" id="nav-week" onclick="switchTab('week')">
+    <span class="nav-icon-wrap">
+      <span class="nav-icon">💬</span>
+      <span class="badge-dot" id="week-badge" style="display:none"></span>
+    </span>
+    <span class="nav-lbl">会話ネタ</span>
+  </button>
+</div>
+
+<script>
+// ============================================================
+// データ管理
+// ============================================================
+const STORAGE_KEY = 'kakera_data';
+
+function loadData() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  } catch { return []; }
+}
+
+function saveData(data) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+// ============================================================
+// サンプルかけら（初回起動時）
+// ============================================================
+const sampleKakeras = [
+  {
+    id: 'sample1',
+    time: '12:18',
+    emoji: '🍜',
+    text: 'いつもと違うルートでランチへ。偶然見つけた路地の定食屋に入った。',
+    hint: '奥さんに話すネタ → 「今日さ、迷子になって面白い店見つけたんだよ」',
+    rating: null,
+    date: todayStr(),
+    type: 'manual'
+  },
+  {
+    id: 'sample2',
+    time: '10:05',
+    emoji: '📍',
+    text: '午前中、いつもより30分早くオフィスに到着。誰もいない静かなオフィスで珈琲を飲んだ。',
+    hint: '気づき → 早起きの朝は集中力が違う。これ続けられる？',
+    rating: null,
+    date: todayStr(),
+    type: 'location'
+  },
+  {
+    id: 'sample3',
+    time: '17:42',
+    emoji: '🌤',
+    text: '帰り道、夕焼けがきれいだった。思わず立ち止まって数分眺めた。',
+    hint: '奥さんへ → 写真撮った？「見せてあげたら喜ぶかも」',
+    rating: null,
+    date: todayStr(),
+    type: 'manual'
+  }
+];
+
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function dayLabel(dateStr) {
+  const days = ['日','月','火','水','木','金','土'];
+  const d = new Date(dateStr);
+  return `${d.getMonth()+1}/${d.getDate()}(${days[d.getDay()]})`;
+}
+
+// 初回のみサンプルデータを入れる
+if (!localStorage.getItem(STORAGE_KEY)) {
+  saveData(sampleKakeras);
+}
+
+// ============================================================
+// UI
+// ============================================================
+let selectedEmoji = '☕';
+
+function selectEmoji(btn) {
+  document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedEmoji = btn.dataset.emoji;
+}
+
+function openModal() {
+  document.getElementById('modal').classList.add('open');
+  document.getElementById('kakera-input').focus();
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  document.getElementById('kakera-input').value = '';
+}
+
+function saveKakera() {
+  const text = document.getElementById('kakera-input').value.trim();
+  if (!text) return;
+  const now = new Date();
+  const time = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const hints = [
+    '奥さんに話すネタになりそう。今夜、夕食のときに。',
+    'たわいもないけど、こういう話が会話を豊かにする。',
+    'これ、意外と面白い話になるかも。',
+    '「今日さ、こんなことあってさ」って話しかけてみては？',
+    '小さな発見。でも誰かに話すと笑顔になれる。'
+  ];
+  const newKakera = {
+    id: Date.now().toString(),
+    time,
+    emoji: selectedEmoji,
+    text,
+    hint: hints[Math.floor(Math.random() * hints.length)],
+    rating: null,
+    date: todayStr(),
+    type: 'manual'
+  };
+  const data = loadData();
+  data.unshift(newKakera);
+  saveData(data);
+  closeModal();
+  renderToday();
+}
+
+function setRating(id, level) {
+  const data = loadData();
+  const item = data.find(d => d.id === id);
+  if (item) {
+    item.rating = item.rating === level ? null : level;
+    saveData(data);
+    renderToday();
+    renderWeek();
+    updateWeekBadge();
+  }
+}
+
+// ============================================================
+// レンダリング：今日
+// ============================================================
+function renderToday() {
+  const data = loadData();
+  const today = data.filter(d => d.date === todayStr());
+  const list = document.getElementById('kakera-list');
+  document.getElementById('kakera-count').textContent = today.length;
+
+  if (today.length === 0) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">🌸</div>
+        <div class="empty-text">今日のかけらがまだありません。<br>「＋かけらを記録する」から<br>今日の気づきを残してみてください。</div>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = today.map(k => `
+    <div class="kakera-card ${k.rating ? 'rated' : ''}" id="card-${k.id}">
+      <div class="kakera-top">
+        <div class="kakera-emoji">${k.emoji}</div>
+        <div class="kakera-content">
+          <div class="kakera-time">${k.time}</div>
+          <div class="kakera-text">${k.text}</div>
+          <div class="kakera-hint">${k.hint}</div>
+        </div>
+      </div>
+      <div class="rating-row">
+        <div class="rating-label">感動レベル</div>
+        <div class="rating-btns">
+          <button class="rating-btn ${k.rating === 'smile' ? 'selected-smile' : ''}" onclick="setRating('${k.id}','smile')">😊<span>ちょっといい</span></button>
+          <button class="rating-btn ${k.rating === 'star'  ? 'selected-star'  : ''}" onclick="setRating('${k.id}','star')">✨<span>よかった</span></button>
+          <button class="rating-btn ${k.rating === 'fire'  ? 'selected-fire'  : ''}" onclick="setRating('${k.id}','fire')">🔥<span>話したい</span></button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+
+// ============================================================
+// 老子の言葉データベース
+// ============================================================
+const laoziWords = [
+  { chinese: '知足者富', japanese: '足るを知る者は富む。', connect: 'お金も演出も要らない。今日のかけらの中に、すでに豊かさは宿っている。' },
+  { chinese: '為學日益、為道日損', japanese: '学問は毎日積み上げるが、道は毎日削ぎ落としていく。', connect: '推し活は「外に足す」行為。かけらは「日常を削ぎ落として本質を見る」行為。そこに老子の道がある。' },
+  { chinese: '上善若水', japanese: '最上の善は水のようなものだ。すべてに利益を与え、争わない。', connect: 'たわいもない会話が、静かに二人の距離を縮めていく。' },
+  { chinese: '致虛極、守靜篤', japanese: '心を虚ろにして極め、静けさを篤く守れ。', connect: 'スマホを閉じ、ただ今日の断片に気づく時間。それが最も豊かな瞬間かもしれない。' },
+  { chinese: '信言不美、美言不信', japanese: '真実の言葉は美しくなく、美しい言葉は真実ではない。', connect: '「今日さ、こんなことがあってさ」そのたわいもない一言が、最も心に届く。' },
+  { chinese: '道可道、非常道', japanese: '語れる道は、永遠の道ではない。', connect: 'かけらは説明できない。ただ感じて、誰かに話す。それでいい。' },
+  { chinese: '天下皆知美之為美', japanese: '美しいと気づく目があれば、日常はすでに美しい。', connect: '今日のランチ、夕焼け、静かな朝のオフィス。それはすでに、非日常だった。' },
+];
+
+function renderLaozi() {
+  const weekNum = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
+  const w = laoziWords[weekNum % laoziWords.length];
+  document.getElementById('laozi-chinese').textContent = w.chinese;
+  document.getElementById('laozi-japanese').textContent = w.japanese;
+  document.getElementById('laozi-connect').textContent = w.connect;
+}
+
+// ============================================================
+// レンダリング：週のネタ
+// ============================================================
+function renderWeek() {
+  const data = loadData();
+  const rated = data.filter(d => d.rating);
+  const fire  = rated.filter(d => d.rating === 'fire');
+  const star  = rated.filter(d => d.rating === 'star');
+  const smile = rated.filter(d => d.rating === 'smile');
+
+  const makeCards = (items) => {
+    if (items.length === 0) return '<div style="font-size:13px;color:var(--muted);padding:8px 0;">まだありません</div>';
+    return items.map(k => `
+      <div class="week-card">
+        <div class="week-card-day">${dayLabel(k.date)}<br>${k.time}</div>
+        <div class="week-card-content">
+          <div class="week-card-text">${k.emoji} ${k.text}</div>
+          <div class="week-card-hint">${k.hint}</div>
+        </div>
+      </div>
+    `).join('');
+  };
+
+  document.getElementById('fire-list').innerHTML = makeCards(fire);
+  document.getElementById('star-list').innerHTML = makeCards(star);
+  document.getElementById('smile-list').innerHTML = makeCards(smile);
+
+  // AI一言コメント
+  const comments = [
+    `今週は ${rated.length} 個のかけらが集まりました。🔥マークの話、今夜奥さんに話してみませんか？`,
+    `「たわいもない話」こそ、二人の距離を縮めます。今週のかけら、ぜひ話のきっかけに。`,
+    `${fire.length > 0 ? `特に「${fire[0].text.slice(0,15)}…」の話、喜ばれそうです。` : 'まだ評価中ですね。気になったかけらに感動レベルをつけてみてください。'}`,
+  ];
+  document.getElementById('ai-comment-text').textContent =
+    rated.length > 0 ? comments[Math.min(fire.length, 2)] : '今週のかけらが集まると、ここにまとめが届きます。';
+
+  renderLaozi();
+}
+
+function updateWeekBadge() {
+  const data = loadData();
+  const hasFire = data.some(d => d.rating === 'fire');
+  document.getElementById('week-badge').style.display = hasFire ? 'block' : 'none';
+}
+
+// ============================================================
+// タブ切り替え
+// ============================================================
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', ['today','week'][i] === tab);
+  });
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + tab).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach((b, i) => {
+    b.classList.toggle('active', ['today','week'][i] === tab);
+  });
+  if (tab === 'week') renderWeek();
+}
+
+// ============================================================
+// センサー系
+// ============================================================
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  document.getElementById('current-time').textContent = `${h}:${m}`;
+}
+
+function updateDate() {
+  const now = new Date();
+  const days = ['日','月','火','水','木','金','土'];
+  document.getElementById('header-date').textContent =
+    `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日（${days[now.getDay()]}）`;
+}
+
+function initLocation() {
+  if (!navigator.geolocation) {
+    document.getElementById('loc-status').textContent = '非対応';
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      document.getElementById('loc-status').textContent = '取得済';
+      // 位置が変わったら自動かけら生成
+      checkLocationKakera(pos.coords);
+    },
+    () => {
+      document.getElementById('loc-status').textContent = '許可待ち';
+    }
+  );
+}
+
+function checkLocationKakera(coords) {
+  // iPhoneでは歩数計APIは限定的なため、デモとして表示
+  document.getElementById('step-count').textContent = '—';
+}
+
+// ============================================================
+// 定期自動かけら生成（時間帯ベース）
+// ============================================================
+function autoKakeraCheck() {
+  const now = new Date();
+  const hour = now.getHours();
+  const data = loadData();
+  const todayAuto = data.filter(d => d.date === todayStr() && d.type === 'auto');
+
+  const autoRules = [
+    { hour: 12, id: 'auto_lunch', emoji: '🍱', text: 'お昼の時間。今日はどこでランチ？', hint: '外食した日は、その話が会話のきっかけになりやすい。' },
+    { hour: 15, id: 'auto_afternoon', emoji: '☕', text: '午後3時。少し一息ついた時間帯。', hint: 'この時間帯に何か気になることがあれば記録してみて。' },
+    { hour: 18, id: 'auto_evening', emoji: '🌆', text: '夕方になってきた。今日一番印象に残ったことは？', hint: '帰り道にふと気づいたことが、いい会話ネタになる。' },
+  ];
+
+  autoRules.forEach(rule => {
+    if (hour >= rule.hour && !todayAuto.find(d => d.id === rule.id)) {
+      const newK = {
+        id: rule.id,
+        time: `${String(rule.hour).padStart(2,'0')}:00`,
+        emoji: rule.emoji,
+        text: rule.text,
+        hint: rule.hint,
+        rating: null,
+        date: todayStr(),
+        type: 'auto'
+      };
+      data.push(newK);
+      saveData(data);
+      renderToday();
+    }
+  });
+}
+
+// ============================================================
+// 初期化
+// ============================================================
+updateDate();
+updateClock();
+setInterval(updateClock, 30000);
+initLocation();
+renderToday();
+updateWeekBadge();
+autoKakeraCheck();
+</script>
+</body>
+</html>
